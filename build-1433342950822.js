@@ -4050,6 +4050,7 @@ var PairPool = Singleton(
                 var pair = PairPool.next(req);
                 this.checkedOut[pair.id] = pair;
                 pair.reset();
+                pair.name = "PairShot"
                 this.container.add(pair);
                 return pair;
             },
@@ -4787,297 +4788,296 @@ function trackEvent(a) {
 
 
         } else {
-
             var introShot = new IntroShot();
+            window.introShot = introShot
             addShot(0.00.beats, introShot, true);
             Player.timeline.add(
                 bg.wipe(3.5.beats, 0xffffff)
                 , 0.35.beats);
-            var anotherDrift = new DriftShot(50, 0.3, 30, false, undefined);
-            anotherDrift.popFrequency = 1;
-            addSimultaneousShot(0.01.beats, anotherDrift, false)
-
         }
 
+        var anotherDrift = new DriftShot(50, 0.3, 30, false, undefined);
+        // anotherDrift.popFrequency = 10000;
+        window.anotherDrift = anotherDrift
+
+        // // 增加shot的同时，将相机复位
+        addSimultaneousShot(0.001.beats, anotherDrift, false)
+        // 将相机往前推进
         addCameraTween(0.01.beats, 5.0.beats, Easing.Quintic.InOut, [0, 0, 100, 0, 0, 0, 0, 0, 0, 1, 50, 1, 30000]);
-        Player.timeline.call(function () {
 
-            Player.timeline.to(Scene.camera, 5.0.beats, { thetaRange: 0.1, phiRange: 0.1 }, 0.01.beats);
-            Player.timeline.to(Scene.camera, 5.0.beats, { thetaRange: TWO_PI / 2, phiRange: PI / 2 }, 5.2.beats);
+        if (1) {
+            var thirdDriftShot = new DriftShot(120, 0.8, 20, false, undefined);
+            thirdDriftShot.camera.position.z = 500;
+            addShot(8.5.beats, thirdDriftShot);
+            addShot(14.0.beats, new DriftShot(300, 0.8, 30, true, 1));
+            // Swirl arpeggio intro
+            // -------------------------------
+            var sexyShot01 = new SexyShot();
+            sexyShot01.len = 10.0.beats;
+            sexyShot01.distance = 0.5;
+            sexyShot01.camera.position.z = 70;
+            sexyShot01.camera.distance = 70;
+            sexyShot01.credit = true;
+            sexyShot01.rx = 0;
+            sexyShot01.ry = -HALF_PI / 2;
+            var swirlShot = new SwirlShot();
+            addShot(18.0.beats, sexyShot01);
 
-        }, [], this, 0.01.beats);
+            Player.timeline.$(18.0.beats, function () {
+                bg.position.y = 0;
+                bg.updateMatrix();
+                sexyShot01.camera.add(bg);
+                bg.clear();
+                bg.colorHigh = sexyShot01.pair.colorMale;
+            });
 
-        var thirdDriftShot = new DriftShot(120, 0.8, 20, false, undefined);
-        thirdDriftShot.camera.position.z = 500;
-        addShot(8.5.beats, thirdDriftShot);
-        addShot(14.0.beats, new DriftShot(300, 0.8, 30, true, 1));
-        // Swirl arpeggio intro
-        // -------------------------------
-        var sexyShot01 = new SexyShot();
-        sexyShot01.len = 10.0.beats;
-        sexyShot01.distance = 0.5;
-        sexyShot01.camera.position.z = 70;
-        sexyShot01.camera.distance = 70;
-        sexyShot01.credit = true;
-        sexyShot01.rx = 0;
-        sexyShot01.ry = -HALF_PI / 2;
-        var swirlShot = new SwirlShot();
-        addShot(18.0.beats, sexyShot01);
+            Player.timeline.$(18.0.beats, bg.soak(6.0.beats));
+            addShot(23.9.beats, swirlShot);
+            Player.timeline.$(23.9.beats, bg.clear);
+            var lastSwirlCut = [572.695, -9.9965, -2.8112, 1.8449, 1.5527, -1.845, 0.0062, 0.7088, -0.0062, 0.7053, 120, 1, 30000];
+            var swirlZoomAnticipatePosition = [576.695, -9.9965, -2.8112, 1.8449, 1.5527, -1.845, 0.0062, 0.7088, -0.0062, 0.7053, 120, 1, 30000]
+            addCut(28.3.beats, swirlShot, lastSwirlCut)
 
-        Player.timeline.$(18.0.beats, function () {
-            bg.position.y = 0;
-            bg.updateMatrix();
-            sexyShot01.camera.add(bg);
-            bg.clear();
-            bg.colorHigh = sexyShot01.pair.colorMale;
-        });
+            // Drop zoom
+            // -------------------------------
+            var swirlZoomAnticipate = new CameraTween();
+            var swirlZoomAnticipateIn = 31.2.beats;
+            swirlZoomAnticipate.target = swirlShot.camera;
+            swirlZoomAnticipate.in = swirlZoomAnticipateIn;
+            swirlZoomAnticipate.out = 31.6.beats;
+            swirlZoomAnticipate.easing = Easing.Quadratic.Out;
+            swirlZoomAnticipate.origin = lastSwirlCut;
+            swirlZoomAnticipate.dest = swirlZoomAnticipatePosition;
+            Player.timeline.call(swirlZoomAnticipate.start, [], swirlZoomAnticipate, swirlZoomAnticipateIn);
+            var swirlZoom = new CameraTween();
+            var swirlZoomIn = 31.6.beats;
+            var swirlZoomArrive = [177.4396, -28.7578, -24.0123, 2.2665, 1.5707963267948966, -2.2773, 0.0523, 0.7506, -0.0599, 0.6559, 70, 1, 30000];
+            swirlZoom.target = swirlShot.camera;
+            swirlZoom.out = 32.0.beats;
+            swirlZoom.easing = Easing.Exponential.In;
+            swirlZoom.origin = swirlZoomAnticipatePosition;
+            swirlZoom.dest = swirlZoomArrive;
+            Player.timeline.call(swirlZoom.start, [], swirlZoom, swirlZoomIn);
+            Player.timeline.call(swirlShot.freeze, [], swirlShot, 32.0.beats);
+            Player.timeline.call(function () {
+                creditPopcorn.visible = false;
+                creditAAF.visible = false;
+            }, [], this, 32.0.beats);
 
-        Player.timeline.$(18.0.beats, bg.soak(6.0.beats));
-        addShot(23.9.beats, swirlShot);
-        Player.timeline.$(23.9.beats, bg.clear);
-        var lastSwirlCut = [572.695, -9.9965, -2.8112, 1.8449, 1.5527, -1.845, 0.0062, 0.7088, -0.0062, 0.7053, 120, 1, 30000];
-        var swirlZoomAnticipatePosition = [576.695, -9.9965, -2.8112, 1.8449, 1.5527, -1.845, 0.0062, 0.7088, -0.0062, 0.7053, 120, 1, 30000]
-        addCut(28.3.beats, swirlShot, lastSwirlCut)
+            // Impact cuts
+            // -------------------------------
+            var swirlFarAway = [2213.7401, -11854.7396, 15926.2202, 0.6399, 0.111, -0.0823, 0.3116, 0.0656, -0.0216, 0.9477, 60, 1, 30000];
+            addCut(34.5.beats, swirlShot, swirlFarAway);
+            Player.timeline.$(34.5.beats, function () {
+                bg.visible = false;
+            });
+            Player.timeline.$(34.5.beats, swirlShot, { lookAt: undefined });
+            var secondInsertCut = [11342.6987, 199.8479, 647.309, -0.2995, 1.5111, 0.299, -0.0064, 0.6866, 0.006, 0.7269, 60, 1, 30000];
+            addCut(35.5.beats, swirlShot, secondInsertCut);
+            Player.timeline.$(35.5.beats, function () {
+                bg.randomize();
+                bg.visible = true;
+            })
+            Player.timeline.$(35.5.beats, swirlShot, { lookAt: 'hero2' });
+            Player.timeline.$(35.5.beats, function () {
+                for (var i = 0, l = swirlShot.pairs.length; i < l; i++) {
+                    swirlShot.pairs[i].strokeInflate(1);
+                }
+            })
 
-        // Drop zoom
-        // -------------------------------
-        var swirlZoomAnticipate = new CameraTween();
-        var swirlZoomAnticipateIn = 31.2.beats;
-        swirlZoomAnticipate.target = swirlShot.camera;
-        swirlZoomAnticipate.in = swirlZoomAnticipateIn;
-        swirlZoomAnticipate.out = 31.6.beats;
-        swirlZoomAnticipate.easing = Easing.Quadratic.Out;
-        swirlZoomAnticipate.origin = lastSwirlCut;
-        swirlZoomAnticipate.dest = swirlZoomAnticipatePosition;
-        Player.timeline.call(swirlZoomAnticipate.start, [], swirlZoomAnticipate, swirlZoomAnticipateIn);
-        var swirlZoom = new CameraTween();
-        var swirlZoomIn = 31.6.beats;
-        var swirlZoomArrive = [177.4396, -28.7578, -24.0123, 2.2665, 1.5707963267948966, -2.2773, 0.0523, 0.7506, -0.0599, 0.6559, 70, 1, 30000];
-        swirlZoom.target = swirlShot.camera;
-        swirlZoom.out = 32.0.beats;
-        swirlZoom.easing = Easing.Exponential.In;
-        swirlZoom.origin = swirlZoomAnticipatePosition;
-        swirlZoom.dest = swirlZoomArrive;
-        Player.timeline.call(swirlZoom.start, [], swirlZoom, swirlZoomIn);
-        Player.timeline.call(swirlShot.freeze, [], swirlShot, 32.0.beats);
-        Player.timeline.call(function () {
-            creditPopcorn.visible = false;
-            creditAAF.visible = false;
-        }, [], this, 32.0.beats);
+            // Tom fill
+            // -------------------------------
+            var tomFillShot = new JumpShot();
+            tomFillShot.useTitle = true;
+            var tomFillTime = Time.bbd(9, 3, 1);
+            var tomFillDur = Time.seconds((32 + 10 / 24) - (31 + 20 / 24));
+            var d = Time.seconds(tomFillDur / 5);
+            addShot(Time.bbd(9, 3, 1) - Time.seconds(0.62), tomFillShot);
+            Player.timeline.call(tomFillShot.jump, [], tomFillShot, tomFillTime);
+            Player.timeline.call(tomFillShot.jump, [], tomFillShot, tomFillTime + d);
+            Player.timeline.call(tomFillShot.insert, [], tomFillShot, tomFillTime);
+            Player.timeline.call(tomFillShot.insert, [], tomFillShot, tomFillTime + Time.seconds(0.1));
 
-        // Impact cuts
-        // -------------------------------
-        var swirlFarAway = [2213.7401, -11854.7396, 15926.2202, 0.6399, 0.111, -0.0823, 0.3116, 0.0656, -0.0216, 0.9477, 60, 1, 30000];
-        addCut(34.5.beats, swirlShot, swirlFarAway);
-        Player.timeline.$(34.5.beats, function () {
-            bg.visible = false;
-        });
-        Player.timeline.$(34.5.beats, swirlShot, { lookAt: undefined });
-        var secondInsertCut = [11342.6987, 199.8479, 647.309, -0.2995, 1.5111, 0.299, -0.0064, 0.6866, 0.006, 0.7269, 60, 1, 30000];
-        addCut(35.5.beats, swirlShot, secondInsertCut);
-        Player.timeline.$(35.5.beats, function () {
-            bg.randomize();
-            bg.visible = true;
-        })
-        Player.timeline.$(35.5.beats, swirlShot, { lookAt: 'hero2' });
-        Player.timeline.$(35.5.beats, function () {
-            for (var i = 0, l = swirlShot.pairs.length; i < l; i++) {
-                swirlShot.pairs[i].strokeInflate(1);
-            }
-        })
+            // Second impact set
+            // -------------------------------
+            var introImpactShot = new IntroImpactShot();
+            addShot(Time.bbd(10, 0, 2), introImpactShot);
+            introImpactShot.offset = -2.0.div;
+            Player.timeline.$(Time.bbd(10, 2, 2), function () {
+                bg.randomize();
+                bg.curdle(new THREE.Color(0xffffff), introImpactShot.pair.colorMale, 1.0.div);
+            });
+            Player.timeline.$(Time.bbd(10, 2, 3), function () {
+                bg.randomize();
+                bg.curdle(new THREE.Color(0xffffff), introImpactShot.pair.colorMale, 1.0.div);
+            });
+            Player.timeline.$(Time.bbd(10, 3, 2), function () {
+                bg.randomize();
+                bg.curdle(new THREE.Color(0xffffff), introImpactShot.pair.colorMale, 2.0.div);
+            });
+            var introImpactShot2 = new IntroImpactShot();
+            addShot(Time.bbd(11, 0, 0), introImpactShot2);
+            introImpactShot2.curdleLength = Time.bbd(0, 2, 0);
 
-        // Tom fill
-        // -------------------------------
-        var tomFillShot = new JumpShot();
-        tomFillShot.useTitle = true;
-        var tomFillTime = Time.bbd(9, 3, 1);
-        var tomFillDur = Time.seconds((32 + 10 / 24) - (31 + 20 / 24));
-        var d = Time.seconds(tomFillDur / 5);
-        addShot(Time.bbd(9, 3, 1) - Time.seconds(0.62), tomFillShot);
-        Player.timeline.call(tomFillShot.jump, [], tomFillShot, tomFillTime);
-        Player.timeline.call(tomFillShot.jump, [], tomFillShot, tomFillTime + d);
-        Player.timeline.call(tomFillShot.insert, [], tomFillShot, tomFillTime);
-        Player.timeline.call(tomFillShot.insert, [], tomFillShot, tomFillTime + Time.seconds(0.1));
+            // Pre-verse fill
+            // -------------------------------
+            var laserFillShot = new JumpShot();
+            laserFillShot.scale = 0.6;
+            var i = 0;
+            var jumps = _.filter(Volumes['dennis bballstab'].peaks, function (t) {
+                return t > Time.seconds(38) && t < Time.seconds(38.8) && i++ < 8;
+            });
+            laserFillShot.count = jumps.length / 2;
+            jumps.forEach(function (time, i) {
+                if (i < 4) {
+                    Player.timeline.call(laserFillShot.jump, [], laserFillShot, time);
+                } else {
+                    Player.timeline.call(laserFillShot.insert, [], laserFillShot, time - Time.seconds(0.23));
+                    Player.timeline.call(laserFillShot.color, [], laserFillShot, time);
+                }
+            }.bind(this));
+            addShot(Time.bbd(11, 2, 3), laserFillShot);
 
-        // Second impact set
-        // -------------------------------
-        var introImpactShot = new IntroImpactShot();
-        addShot(Time.bbd(10, 0, 2), introImpactShot);
-        introImpactShot.offset = -2.0.div;
-        Player.timeline.$(Time.bbd(10, 2, 2), function () {
-            bg.randomize();
-            bg.curdle(new THREE.Color(0xffffff), introImpactShot.pair.colorMale, 1.0.div);
-        });
-        Player.timeline.$(Time.bbd(10, 2, 3), function () {
-            bg.randomize();
-            bg.curdle(new THREE.Color(0xffffff), introImpactShot.pair.colorMale, 1.0.div);
-        });
-        Player.timeline.$(Time.bbd(10, 3, 2), function () {
-            bg.randomize();
-            bg.curdle(new THREE.Color(0xffffff), introImpactShot.pair.colorMale, 2.0.div);
-        });
-        var introImpactShot2 = new IntroImpactShot();
-        addShot(Time.bbd(11, 0, 0), introImpactShot2);
-        introImpactShot2.curdleLength = Time.bbd(0, 2, 0);
-
-        // Pre-verse fill
-        // -------------------------------
-        var laserFillShot = new JumpShot();
-        laserFillShot.scale = 0.6;
-        var i = 0;
-        var jumps = _.filter(Volumes['dennis bballstab'].peaks, function (t) {
-            return t > Time.seconds(38) && t < Time.seconds(38.8) && i++ < 8;
-        });
-        laserFillShot.count = jumps.length / 2;
-        jumps.forEach(function (time, i) {
-            if (i < 4) {
-                Player.timeline.call(laserFillShot.jump, [], laserFillShot, time);
-            } else {
-                Player.timeline.call(laserFillShot.insert, [], laserFillShot, time - Time.seconds(0.23));
-                Player.timeline.call(laserFillShot.color, [], laserFillShot, time);
-            }
-        }.bind(this));
-        addShot(Time.bbd(11, 2, 3), laserFillShot);
-
-        // First verse rain
-        // -------------------------------
-        var rainShot = new RainShot();
-        rainShot.max = Time.bbd(20, 0, 0);
-        rainShot.tracks = [
-            'dennis 7-Kick 808 2',
-            'dennis drums',
-            'dennis sunvox',
-            'dennis pokey',
-            'dennis 20-808BD_T5D7_X',
-            'dennis crash2'
-        ];
-        addShot(Time.bbd(12, 0, 2), rainShot);
-        addCut(Time.bars(14), rainShot, RainShot.cuts.kicks);
-        addCut(Time.bars(15), rainShot, RainShot.cuts.hihats);
-        addCut(Time.bars(16), rainShot, RainShot.cuts.forward);
-        addCut(Time.bars(17), rainShot, RainShot.cuts.underneath);
-        addCut(Time.bars(18.25), rainShot, RainShot.cuts.pokes);
-
-        // Grid shot 1
-        // -------------------------------
-        var gridHack = new GridShot();
-        gridHack.cols = 0;
-        gridHack.rows = 0;
-        var gridShot = new GridShot();
-        gridShot.padding = 10;
-        gridShot.cols = 5;
-        gridShot.rows = 3;
-        gridShot.appearTracks = ['dennis funny'];
-        gridShot.impactIn = 25.0.bars;
-        gridShot.impactTracks = [
-            'dennis human',
-            'dennis 28-Vox1C5',
-            'dennis drums',
-            'dennis fx2',
-        ];
-        gridShot.max = Time.bars(26, 3);
-        addShot(Time.bbd(23, 3, 0), gridShot);
-
-        // Grid shot 2
-        // -------------------------------
-        var gridShot2 = new GridShot();
-        gridShot2.padding = 10;
-        gridShot2.cols = 5;
-        gridShot2.rows = 3;
-        gridShot2.appearTracks = ['dennis funny'];
-        gridShot2.max = 28.0.bars;
-        addShot(Time.bars(26, 2), gridShot2);
-
-        // Sexy Sexion
-        // -------------------------------
-        Player.timeline.set(bg, { visible: false }, 27.0.bars)
-        var sexyShot = new SexyShot();
-        sexyShot.len = 1.0.bars;
-        sexyShot.distance = 0.65;
-        sexyShot.background = true;
-        var sexyShot1 = new SexyShot();
-        sexyShot1.len = 1.0.bars;
-        sexyShot1.distance = 0.4;
-        sexyShot1.camera.position.z = 65;
-        sexyShot1.camera.distance = 65;
-        sexyShot1.background = true;
-        var sexyShot2 = new SexyShot();
-        sexyShot2.len = 1.0.bars;
-        sexyShot2.distance = 0.3;
-        sexyShot2.background = true;
-        sexyShot2.camera.position.z = 50;
-        sexyShot2.camera.distance = 50;
-        addShot(27.0.bars, sexyShot)
-        addShot(Time.bbd(27, 2), sexyShot1)
-        addShot(Time.bbd(27, 3), sexyShot2);
-
-        // Melody cutaway
-        // -------------------------------
-        var melodyShot = new MelodyShot1();
-        melodyShot.offset = Time.div(1);
-        addShot(28.0.bars - melodyShot.offset, melodyShot);
-
-        // Bullet time
-        // -------------------------------
-        var bulletTimeShot = new BulletTimeShot();
-        addShot(29.75.bars, bulletTimeShot);
-        bulletTimeShot.in -= 1.0.bars;
-
-        // Roller coaster
-        // -------------------------------
-        var snakeShot = new SnakeShot();
-        snakeShot.duration = 1.0.bars;
-        snakeShot.tracks = //_.keys( Volumes );
-            [
+            // First verse rain
+            // -------------------------------
+            var rainShot = new RainShot();
+            rainShot.max = Time.bbd(20, 0, 0);
+            rainShot.tracks = [
                 'dennis 7-Kick 808 2',
                 'dennis drums',
                 'dennis sunvox',
                 'dennis pokey',
                 'dennis 20-808BD_T5D7_X',
-                'dennis lasersynth',
-                'dennis supersaw',
-                'dennis human',
                 'dennis crash2'
             ];
-        addShot(30.5.bars, snakeShot);
-        var refuseShot = new RefuseShot();
-        addShot(32.25.bars, refuseShot);
+            addShot(Time.bbd(12, 0, 2), rainShot);
+            addCut(Time.bars(14), rainShot, RainShot.cuts.kicks);
+            addCut(Time.bars(15), rainShot, RainShot.cuts.hihats);
+            addCut(Time.bars(16), rainShot, RainShot.cuts.forward);
+            addCut(Time.bars(17), rainShot, RainShot.cuts.underneath);
+            addCut(Time.bars(18.25), rainShot, RainShot.cuts.pokes);
 
-        // Tables turn
-        // -------------------------------
-        addShot(34.0.bars, new TableTurnShot());
-        addShot(36.0.bars, new TableTurnShot());
+            // Grid shot 1
+            // -------------------------------
+            var gridHack = new GridShot();
+            gridHack.cols = 0;
+            gridHack.rows = 0;
+            var gridShot = new GridShot();
+            gridShot.padding = 10;
+            gridShot.cols = 5;
+            gridShot.rows = 3;
+            gridShot.appearTracks = ['dennis funny'];
+            gridShot.impactIn = 25.0.bars;
+            gridShot.impactTracks = [
+                'dennis human',
+                'dennis 28-Vox1C5',
+                'dennis drums',
+                'dennis fx2',
+            ];
+            gridShot.max = Time.bars(26, 3);
+            addShot(Time.bbd(23, 3, 0), gridShot);
 
-        // Finale
-        // -------------------------------
-        var parabolaShot = new ParabolaShot();
-        parabolaShot.duration = Time.bbd(8, 0, 2);
-        parabolaShot.out = 43.0.bars
-        addShot(38.0.bars, parabolaShot);
-        addCut(38.4.bars, parabolaShot, [1653.0005, 67.2793, 2539.1972, 0.0322, -0.5003, -0.0001, 0.0156, -0.2475, 0.004, 0.9687, 60, 1, 30000]);
-        var melodyShot2 = new MelodyShot2();
-        melodyShot2.offset = Time.div(1);
-        addSimultaneousShot(39.0.bars - melodyShot.offset, melodyShot2);
-        addCameraTween(39.25.bars, 0.65.bars, Easing.Quadratic.InOut, [7023.3928, 455.9658, 1994.6711, -0.0203, 0.5741, 0, -0.0097, 0.2831, 0.0029, 0.959, 74.9, 1, 30000]);
-        addCut(40.0.bars, melodyShot2, [8555.6028, 201.9867, -1227.3187, -0.0342, 2.3509, 0, -0.0066, 0.9227, 0.0158, 0.3851, 90.6, 1, 30000]);//[ 4640.6824 * 2, 1269.0682, 416.5563, -1.5708, 0.0043, 0.0001, -0.7071, 0.0015, 0.0015, 0.7071, 90.6, 1, 30000 ] );
-        addCut(40.5.bars, melodyShot2, [4811.8696 * 2, -0.5813, 1741.9753, 0.1224, 0.7048, 0, 0.0574, 0.3445, -0.0211, 0.9368, 101.6, 1, 90000]);
-        var latticeShot1 = new LatticeShot();
-        addSimultaneousShot(Time.bbd(41), latticeShot1, false);
-        if (!LITE && !HANDHELD) {
-            var followShot = new FollowShot();
-            followShot.out = Time.bbd(43);
-            followShot.tracks = _.keys(Volumes);
-            addSimultaneousShot(Time.bbd(40.9), followShot, false);
-            Player.timeline.$(followShot.out, followShot.stop, followShot);
+            // Grid shot 2
+            // -------------------------------
+            var gridShot2 = new GridShot();
+            gridShot2.padding = 10;
+            gridShot2.cols = 5;
+            gridShot2.rows = 3;
+            gridShot2.appearTracks = ['dennis funny'];
+            gridShot2.max = 28.0.bars;
+            addShot(Time.bars(26, 2), gridShot2);
+
+            // Sexy Sexion
+            // -------------------------------
+            Player.timeline.set(bg, { visible: false }, 27.0.bars)
+            var sexyShot = new SexyShot();
+            sexyShot.len = 1.0.bars;
+            sexyShot.distance = 0.65;
+            sexyShot.background = true;
+            var sexyShot1 = new SexyShot();
+            sexyShot1.len = 1.0.bars;
+            sexyShot1.distance = 0.4;
+            sexyShot1.camera.position.z = 65;
+            sexyShot1.camera.distance = 65;
+            sexyShot1.background = true;
+            var sexyShot2 = new SexyShot();
+            sexyShot2.len = 1.0.bars;
+            sexyShot2.distance = 0.3;
+            sexyShot2.background = true;
+            sexyShot2.camera.position.z = 50;
+            sexyShot2.camera.distance = 50;
+            addShot(27.0.bars, sexyShot)
+            addShot(Time.bbd(27, 2), sexyShot1)
+            addShot(Time.bbd(27, 3), sexyShot2);
+
+            // Melody cutaway
+            // -------------------------------
+            var melodyShot = new MelodyShot1();
+            melodyShot.offset = Time.div(1);
+            addShot(28.0.bars - melodyShot.offset, melodyShot);
+
+            // Bullet time
+            // -------------------------------
+            var bulletTimeShot = new BulletTimeShot();
+            addShot(29.75.bars, bulletTimeShot);
+            bulletTimeShot.in -= 1.0.bars;
+
+            // Roller coaster
+            // -------------------------------
+            var snakeShot = new SnakeShot();
+            snakeShot.duration = 1.0.bars;
+            snakeShot.tracks = //_.keys( Volumes );
+                [
+                    'dennis 7-Kick 808 2',
+                    'dennis drums',
+                    'dennis sunvox',
+                    'dennis pokey',
+                    'dennis 20-808BD_T5D7_X',
+                    'dennis lasersynth',
+                    'dennis supersaw',
+                    'dennis human',
+                    'dennis crash2'
+                ];
+            addShot(30.5.bars, snakeShot);
+            var refuseShot = new RefuseShot();
+            addShot(32.25.bars, refuseShot);
+
+            // Tables turn
+            // -------------------------------
+            addShot(34.0.bars, new TableTurnShot());
+            addShot(36.0.bars, new TableTurnShot());
+
+            // Finale
+            // -------------------------------
+            var parabolaShot = new ParabolaShot();
+            parabolaShot.duration = Time.bbd(8, 0, 2);
+            parabolaShot.out = 43.0.bars
+            addShot(38.0.bars, parabolaShot);
+            addCut(38.4.bars, parabolaShot, [1653.0005, 67.2793, 2539.1972, 0.0322, -0.5003, -0.0001, 0.0156, -0.2475, 0.004, 0.9687, 60, 1, 30000]);
+            var melodyShot2 = new MelodyShot2();
+            melodyShot2.offset = Time.div(1);
+            addSimultaneousShot(39.0.bars - melodyShot.offset, melodyShot2);
+            addCameraTween(39.25.bars, 0.65.bars, Easing.Quadratic.InOut, [7023.3928, 455.9658, 1994.6711, -0.0203, 0.5741, 0, -0.0097, 0.2831, 0.0029, 0.959, 74.9, 1, 30000]);
+            addCut(40.0.bars, melodyShot2, [8555.6028, 201.9867, -1227.3187, -0.0342, 2.3509, 0, -0.0066, 0.9227, 0.0158, 0.3851, 90.6, 1, 30000]);//[ 4640.6824 * 2, 1269.0682, 416.5563, -1.5708, 0.0043, 0.0001, -0.7071, 0.0015, 0.0015, 0.7071, 90.6, 1, 30000 ] );
+            addCut(40.5.bars, melodyShot2, [4811.8696 * 2, -0.5813, 1741.9753, 0.1224, 0.7048, 0, 0.0574, 0.3445, -0.0211, 0.9368, 101.6, 1, 90000]);
+            var latticeShot1 = new LatticeShot();
+            addSimultaneousShot(Time.bbd(41), latticeShot1, false);
+            if (!LITE && !HANDHELD) {
+                var followShot = new FollowShot();
+                followShot.out = Time.bbd(43);
+                followShot.tracks = _.keys(Volumes);
+                addSimultaneousShot(Time.bbd(40.9), followShot, false);
+                Player.timeline.$(followShot.out, followShot.stop, followShot);
+            }
+            addCameraTween(Time.bbd(41), Time.bbd(2), Easing.Quadratic.In, [-3306.5978, 64929.6176, -1626.5002, 1.5452, 0.6987, -2.9452, -0.1796, 0.6767, -0.693, -0.1718, 105.5, 1, 90000]);
+            addCameraTween(Time.bbd(43, 2), 6.0.beats, Easing.Quadratic.In, [-1878.9144, -400681.0666, -1465.7254, -0.1252, 0.1231, 0, -0.0624, 0.0614, 0.0038, 0.9962, 105.5, 1, 100000]);
+            Player.timeline.$(46.0.bars, latticeShot1.stop, latticeShot1);
+            Player.timeline.$(42.0.bars, melodyShot2.stop, melodyShot2);
+            Player.timeline.$(42.5.bars, parabolaShot.stop, parabolaShot);
+            var floorShot = new FloorShot();
+            addShot(Time.bbd(44.5), floorShot);
+            Player.timeline.fromTo(bg, 4.0.beats, { threshhold: 0.5 }, { threshhold: 0, ease: Linear.easeNone, immediateRender: false }, Time.bbd(43));
         }
-        addCameraTween(Time.bbd(41), Time.bbd(2), Easing.Quadratic.In, [-3306.5978, 64929.6176, -1626.5002, 1.5452, 0.6987, -2.9452, -0.1796, 0.6767, -0.693, -0.1718, 105.5, 1, 90000]);
-        addCameraTween(Time.bbd(43, 2), 6.0.beats, Easing.Quadratic.In, [-1878.9144, -400681.0666, -1465.7254, -0.1252, 0.1231, 0, -0.0624, 0.0614, 0.0038, 0.9962, 105.5, 1, 100000]);
-        Player.timeline.$(46.0.bars, latticeShot1.stop, latticeShot1);
-        Player.timeline.$(42.0.bars, melodyShot2.stop, melodyShot2);
-        Player.timeline.$(42.5.bars, parabolaShot.stop, parabolaShot);
-        var floorShot = new FloorShot();
-        addShot(Time.bbd(44.5), floorShot);
-        Player.timeline.fromTo(bg, 4.0.beats, { threshhold: 0.5 }, { threshhold: 0, ease: Linear.easeNone, immediateRender: false }, Time.bbd(43));
     }
 
     var currentShots = [];
@@ -6166,6 +6166,7 @@ var PairWrapper = Composition(
             this.dir = dir;
 
             this.useMidi = useMidi === undefined ? true : useMidi;
+            this.container.name = "DriftShot"
 
         },
 
@@ -6816,6 +6817,7 @@ var PairWrapper = Composition(
             this.camera.distance = 100;
             this.camera.far = 50000;
             this.camera.fov = 50;
+            // pairs = 50
             this.count = 50;
             this.jumpIndex = 0;
             this.insertIndex = 0;
@@ -6824,41 +6826,26 @@ var PairWrapper = Composition(
             this.offsetY = -100000;
 
             this.timeline2 = new Timeline({ paused: false });
-
-            // Scene.camera = this.camera;
-
-
             this.container.position.y = 0;
             this.camera.position.y = this.offsetY;
-
-
-            // dennisPlay.position.z = -200;
-            // dennisPlay.position.y = this.offsetY;
-            // dennisPlay.scale.multiplyScalar( 0.1 );
-
-            // dennisCredit.position.y = this.offsetY + 2000;
-            // dennisCredit.position.z = -5000;
-            // dennisCredit.scale.multiplyScalar( 6.350852961085884 );
-
             dennisTitle.position.z = -35000;
             dennisTitle.position.y = this.offsetY;
             dennisTitle.scale.multiplyScalar(5 * 9);
-
+            dennisTitle.name = "dennisTitle"
             this.jumpSide = 1;
 
             this.container.add(dennisTitle);
-            // this.container.add( dennisCredit );
-            // this.container.add( dennisPlay );
 
             this.planetContainer = new THREE.Object3D();
+            this.planetContainer.name = "planetContainer"
             this.planetContainer.position.y = this.offsetY;
 
             this.container.add(this.planetContainer);
-
+            this.container.name = "IntroShot"
             this.ry = random.range(0.0001, 0.0002);
             this.rx = random.range(0.0001, 0.0002);
 
-
+            // 50个 pairs shot,可以飞镖扎的
             this.pairs = this.get(this.count);
             this.pairs.forEach(function (p, i) {
                 p.position.y = this.offsetY - 300;
@@ -6866,24 +6853,18 @@ var PairWrapper = Composition(
             }, this);
 
             Stage.frozenLoop.on('update', this.update);
-
             this.planetPairs = [];
-
         },
 
         {
 
             start: function () {
-
                 this.lastJump = Date.now() + 2200;
                 this.nextJumpTime = random(900, 1800);
-
-                dennisTitle.material.color = new THREE.Color(0x282828);
-
                 var slice = this.camera.frustumSlice();
+                // 垂直分散shot
                 this.scatterPairs = this.get((PairPool.size - this.count) / 5);
                 this.scatterPairs.forEach(function (p, i) {
-
                     p.position.y = map(i, 0, this.scatterPairs.length, this.offsetY + 40000, 0);
                     var d = random(1000, 4000);
                     var a = random(Math.PI + 0.8, 2 * Math.PI - 0.8);
@@ -6891,18 +6872,13 @@ var PairWrapper = Composition(
                     p.position.z = Math.sin(a) * d;
                     p.strokeInflate(0.65);
                     if (p.position.y < -500) {
-                        // p.male.position.set( random(), random(), random() );
                         p.scale.setLength(map(i, 0, this.scatterPairs.length, 22, 1) + random(6));
-                        // p.male.position.setLength( random( 200, 1000 ) );
-                        // p.male.visible = true;
                     }
                 }, this);
 
+                // 等待时的静止shot
                 this.planetPairs = this.get((PairPool.size - this.count) / 4);
-
                 this.planetPairs.forEach(function (p, i) {
-                    // p.position.set( random.range(), random.range(), random.range() );
-
                     p.position.y = Math.cos(i / this.planetPairs.length * Math.PI * 2);
                     p.position.z = Math.sin(i / this.planetPairs.length * Math.PI * 2);
                     p.position.x = random.range();
@@ -6954,32 +6930,19 @@ var PairWrapper = Composition(
                 this.jumpSide *= -1;
                 var timeline = pair.jump2(this.offsetY + random(150 / 4));
                 timeline.add(pair.insert2(1.0), 0.5);
-                timeline.call(function () {
-                    // bg.solid( pair.colorMale );
-                }, [], this, 0.9)
             },
 
             color: function () {
-                // bg.colorLow = this.pairs[ this.colorIndex % this.pairs.length ].colorMale.getHex();
-                // bg.colorHigh = bg.colorLow;
-                // this.colorIndex++;
             },
 
             insert: function () {
-
                 var pair = this.pairs[this.insertIndex % this.pairs.length];
                 this.insertIndex++;
-
                 var speed = 1.6;
-
                 this.timeline2.add(pair.insert(speed), this.now);
-                // this.timeline.call( Renderer.setClearColor, [ pair.colorMale, 1 ], this.now - )
-
-
             },
 
             update: function () {
-
                 this.planetContainer.rotation.x += 0.00025;
                 for (var i = 0, l = this.planetPairs.length; i < l; i++) {
                     var pp = this.planetPairs[i];
@@ -6990,10 +6953,8 @@ var PairWrapper = Composition(
                 if (!RECORD_MODE && !TITLE_CAP && Date.now() - this.lastJump > this.nextJumpTime) {
                     this.lastJump = Date.now();
                     this.nextJumpTime = random(900, 1800);
-
                     this.jump();
                 }
-                // this.planetContainer.rotation.y += this.ry;
             }
 
         }
